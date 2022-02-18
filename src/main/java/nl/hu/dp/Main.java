@@ -1,5 +1,6 @@
 package nl.hu.dp;
 
+import nl.hu.dp.dao.ReizigerDAO;
 import nl.hu.dp.domains.Reiziger;
 
 import java.sql.*;
@@ -16,7 +17,7 @@ public class Main {
         testReizigerDAO(rdp);
     }
 
-    private static void testReizigerDAO(ReizigerDAOPsql rdao) throws SQLException {
+    private static void testReizigerDAO(ReizigerDAO rdao) throws SQLException {
         System.out.println("\n---------- Test ReizigerDAOSql -------------");
 
         // Haal alle reizigers op uit de database
