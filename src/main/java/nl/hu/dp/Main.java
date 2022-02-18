@@ -1,19 +1,58 @@
 package nl.hu.dp;
 
+import nl.hu.dp.domains.Reiziger;
+
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
+
 
 public class Main {
     private static Connection connection = null;
-    public static void main(String[] args) {
-        System.out.println("Hello");
-        try {
-            testConnection();
+    public static void main(String[] args) throws SQLException{
+        System.out.println("Tobias Holscher");
+
+        ReizigerDAOPsql rdp = new ReizigerDAOPsql(getConnection());
+
+        testReizigerDAO(rdp);
+    }
+
+    private static void testReizigerDAO(ReizigerDAOPsql rdao) throws SQLException {
+        System.out.println("\n---------- Test ReizigerDAOSql -------------");
+
+        // Haal alle reizigers op uit de database
+        List<Reiziger> reizigers = rdao.findAll();
+        System.out.println("[Testing findAll()] Gives following reizigers:");
+        for (Reiziger r : reizigers) {
+            System.out.println(r);
         }
-        catch (SQLException e){
-            System.out.println(e);
+        System.out.println();
+
+        // Maak een nieuwe reiziger aan en persisteer deze in de database
+        String gbdatum = "1981-03-14";
+        Reiziger sietske = new Reiziger(77, "S", "", "Boers", java.sql.Date.valueOf(gbdatum));
+        System.out.print("[Testing insert] \nFirst " + reizigers.size() + " reizigers, \nAfter ReizigerDAOSql.save() ");
+        rdao.save(sietske);
+        reizigers = rdao.findAll();
+        System.out.println("\n"+reizigers.size() + " reizigers\n");
+
+        // Test update
+        System.out.println("\n[Testing update]: check last name of person with ID: 77");
+        sietske.setAchternaam("Zus");
+        rdao.update(sietske);
+        reizigers = rdao.findAll();
+        for(Reiziger r : reizigers){
+            System.out.println(r.toString());
         }
+
+        //Test delete
+        System.out.println("\n[Testing delete]: check last name of person with ID: 77, oh wait he's gone!");
+        rdao.delete(sietske);
+        reizigers = rdao.findAll();
+        for(Reiziger r : reizigers){
+            System.out.println(r.toString());
+        }
+
+        System.out.println("\n---------- Test Complete--------------");
     }
 
     private static Connection getConnection() throws SQLException {
