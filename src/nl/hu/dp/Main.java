@@ -1,7 +1,0 @@
-package nl.hu.dp;
-
-public class Main {
-    public static void main(String[] args) {
-        System.out.println("Hello");
-    }
-}
