@@ -1,4 +1,4 @@
-package nl.hu.dp;
+package nl.hu.dp.dao;
 
 import nl.hu.dp.dao.ReizigerDAO;
 import nl.hu.dp.domains.Reiziger;
@@ -9,13 +9,23 @@ import java.util.List;
 
 public class ReizigerDAOPsql implements ReizigerDAO {
     Connection inConnection = null;
-    public ReizigerDAOPsql(Connection inConnection){
+    private AdresDAO adao;
+
+    public AdresDAO getAdao() {
+        return adao;
+    }
+
+    public void setAdao(AdresDAO adao) {
+        this.adao = adao;
+    }
+
+    public ReizigerDAOPsql(Connection inConnection) {
         this.inConnection = inConnection;
     }
 
     @Override
-    public boolean save(Reiziger inReiziger){
-        try{
+    public boolean save(Reiziger inReiziger) {
+        try {
             PreparedStatement statement = this.inConnection.prepareStatement(
                     "INSERT INTO reiziger (reiziger_id, voorletters, tussenvoegsel, achternaam, geboortedatum) VALUES (?,?,?,?,?)"
             );
@@ -25,13 +35,16 @@ public class ReizigerDAOPsql implements ReizigerDAO {
             statement.setString(4, inReiziger.getAchternaam());
             statement.setDate(5, inReiziger.getGeboortedatum());
 
+            if (adao != null && inReiziger.getAdres() != null) {
+                adao.save(inReiziger.getAdres());
+            }
 
             statement.executeUpdate();
 
             statement.close();
 
             return true;
-        }catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
@@ -39,7 +52,7 @@ public class ReizigerDAOPsql implements ReizigerDAO {
     }
 
     @Override
-    public List<Reiziger> findAll(){
+    public List<Reiziger> findAll() {
         ArrayList<Reiziger> reizigers = new ArrayList<Reiziger>();
         try {
             PreparedStatement statement = this.inConnection.prepareStatement("SELECT * FROM reiziger;");
@@ -53,12 +66,18 @@ public class ReizigerDAOPsql implements ReizigerDAO {
                 r.setAchternaam(theSet.getString("achternaam"));
                 r.setGeboortedatum(theSet.getDate("geboortedatum"));
 
+//              Geef het reiziger object mee om het bijbehorende adres op te vragen
+                if (adao != null && adao.findByReiziger(r) != null) {
+                    r.setAdres(adao.findByReiziger(r));
+                    r.getAdres().setReiziger(r);
+                }
+
                 reizigers.add(r);
             }
             theSet.close();
             statement.close();
 
-        }catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
@@ -67,7 +86,7 @@ public class ReizigerDAOPsql implements ReizigerDAO {
 
     @Override
     public boolean update(Reiziger inReiziger) throws SQLException {
-        try{
+        try {
             PreparedStatement statement = this.inConnection.prepareStatement(
                     "UPDATE reiziger SET  reiziger_id = ?, voorletters = ?, tussenvoegsel=? , achternaam = ?, geboortedatum = ? WHERE reiziger_id = ?;"
             );
@@ -80,7 +99,7 @@ public class ReizigerDAOPsql implements ReizigerDAO {
             statement.executeUpdate();
             statement.close();
             return true;
-        }catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
         return false;
@@ -88,7 +107,7 @@ public class ReizigerDAOPsql implements ReizigerDAO {
 
     @Override
     public boolean delete(Reiziger inReiziger) throws SQLException {
-        try{
+        try {
             PreparedStatement statement = this.inConnection.prepareStatement(
                     "DELETE FROM reiziger WHERE reiziger_id = ?;"
             );
@@ -96,10 +115,36 @@ public class ReizigerDAOPsql implements ReizigerDAO {
             statement.executeUpdate();
             statement.close();
             return true;
-        }catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
         return false;
+    }
+
+    @Override
+    public Reiziger findById(int id) throws SQLException {
+        ArrayList<Reiziger> reizigers = new ArrayList<Reiziger>();
+        try {
+            PreparedStatement statement = this.inConnection.prepareStatement("SELECT * FROM reiziger;");
+            ResultSet theSet = statement.executeQuery();
+
+            while (theSet.next()) {
+                Reiziger r = new Reiziger();
+                r.setId(theSet.getInt("reiziger_id"));
+                r.setVoorletters(theSet.getString("voorletters"));
+                r.setTussenvoegsel(theSet.getString("tussenvoegsel"));
+                r.setAchternaam(theSet.getString("achternaam"));
+                r.setGeboortedatum(theSet.getDate("geboortedatum"));
+
+                return r;
+            }
+            theSet.close();
+            statement.close();
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
     }
 
 }

@@ -1,6 +1,10 @@
 package nl.hu.dp;
 
+import nl.hu.dp.dao.AdresDAO;
+import nl.hu.dp.dao.AdresDAOsql;
 import nl.hu.dp.dao.ReizigerDAO;
+import nl.hu.dp.dao.ReizigerDAOPsql;
+import nl.hu.dp.domains.Adres;
 import nl.hu.dp.domains.Reiziger;
 
 import java.sql.*;
@@ -13,8 +17,24 @@ public class Main {
         System.out.println("Tobias Holscher");
 
         ReizigerDAOPsql rdp = new ReizigerDAOPsql(getConnection());
+        AdresDAOsql adp = new AdresDAOsql(getConnection());
+        rdp.setAdao(adp);
+        adp.setRdao(rdp);
 
         testReizigerDAO(rdp);
+        testAdresDAO(adp);
+    }
+
+    private static void testAdresDAO(AdresDAO adao) throws SQLException{
+        System.out.println("\n---------- Test AdresDAOSql -------------");
+        List<Adres> adressen = adao.findAll();
+        System.out.println("[Testing findAll()] Gives following reizigers:");
+        for (Adres r : adressen) {
+            System.out.println(r);
+        }
+        System.out.println();
+
+        System.out.println("\n---------- Test Complete--------------");
     }
 
     private static void testReizigerDAO(ReizigerDAO rdao) throws SQLException {

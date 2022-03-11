@@ -12,10 +12,19 @@ public class Reiziger {
     private String tussenvoegsel = "";
     private String achternaam = "";
     private java.sql.Date geboortedatum = new java.sql.Date(0);
+    private Adres adres;
+
+    public Adres getAdres() {
+        return adres;
+    }
+
+    public void setAdres(Adres adres) {
+        this.adres = adres;
+    }
 
     public Reiziger(int id, String voorletters, String tussenvoegsel, String achternaam, Date geboortedatum){
         this.id = id;
-        this.voorletters = voorletters;
+        this.voorletters =  voorletters;
         this.tussenvoegsel = tussenvoegsel;
         this.achternaam = achternaam;
         this.geboortedatum = geboortedatum;
@@ -23,9 +32,17 @@ public class Reiziger {
 
     public Reiziger(){}
 
-
     public String toString(){
-        return "Reziger:\t(" + this.id + " " + this.voorletters + " " + this.achternaam + " " + this.tussenvoegsel + " " + this.geboortedatum.toString() + ")";
+        String s = "Reiziger:\t(" + this.id + " " +
+                this.voorletters + " " +
+                this.achternaam + " " +
+                this.tussenvoegsel + " " +
+                this.geboortedatum.toString() + " " +
+                 ")";
+        if(adres != null){
+            s += adres.toString();
+        }
+        return s ;
     }
 
     public java.sql.Date getGeboortedatum() {
