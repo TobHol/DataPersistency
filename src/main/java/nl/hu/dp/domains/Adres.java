@@ -9,8 +9,8 @@ public class Adres {
     private Reiziger reiziger;
 
     public Adres(){}
-    public Adres(int adres, String postcode, String huisnummer, String straat, String woonplaats){
-        this.adres_id = adres;
+    public Adres(int adres_id, String postcode, String huisnummer, String straat, String woonplaats){
+        this.adres_id = adres_id;
         this.postcode = postcode;
         this.huisnummer = huisnummer;
         this.straat = straat;

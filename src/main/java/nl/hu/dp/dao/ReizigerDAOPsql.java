@@ -35,11 +35,11 @@ public class ReizigerDAOPsql implements ReizigerDAO {
             statement.setString(4, inReiziger.getAchternaam());
             statement.setDate(5, inReiziger.getGeboortedatum());
 
+            statement.executeUpdate();
+
             if (adao != null && inReiziger.getAdres() != null) {
                 adao.save(inReiziger.getAdres());
             }
-
-            statement.executeUpdate();
 
             statement.close();
 

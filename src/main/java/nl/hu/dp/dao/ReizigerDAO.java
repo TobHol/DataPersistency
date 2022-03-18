@@ -14,4 +14,6 @@ public interface ReizigerDAO {
 
     List<Reiziger> findAll() throws SQLException;
     Reiziger findById(int id) throws SQLException;
+
+    AdresDAO getAdao();
 }

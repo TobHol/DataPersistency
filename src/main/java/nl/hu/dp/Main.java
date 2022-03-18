@@ -22,17 +22,54 @@ public class Main {
         adp.setRdao(rdp);
 
         testReizigerDAO(rdp);
-        testAdresDAO(adp);
+        testAdresDAO(rdp);
     }
 
-    private static void testAdresDAO(AdresDAO adao) throws SQLException{
+    private static void testAdresDAO(ReizigerDAO rdao) throws SQLException{
         System.out.println("\n---------- Test AdresDAOSql -------------");
-        List<Adres> adressen = adao.findAll();
-        System.out.println("[Testing findAll()] Gives following reizigers:");
+
+//      Current state van tabel
+        List<Adres> adressen = rdao.getAdao().findAll();
+        System.out.println("[Testing findAll()] Gives following adresses:");
         for (Adres r : adressen) {
             System.out.println(r);
         }
         System.out.println();
+
+//      Test Delete Database
+        String gbdatum = "1981-03-14";
+        Reiziger aika = new Reiziger(88, "S", "", "Boers", java.sql.Date.valueOf(gbdatum));
+        rdao.delete(aika);
+        Adres a1 = new Adres(3000, "5683fd", "22a", "Roomstraat", "Helmondus");
+        rdao.getAdao().delete(a1);
+
+//      Create Relations
+        a1.setReiziger(aika);
+        aika.setAdres(a1);
+
+//      Persist Data
+        System.out.println("[Testing insert] \nFirst " + adressen.size() + " adressen \nAfter AdreDAOsql.save() ");
+        rdao.save(aika);
+        adressen = rdao.getAdao().findAll();
+        System.out.println("\n"+adressen.size() + " adressen\n");
+
+//      Test Update
+        System.out.println("\n[Testing update]: Helmondus vervangen door Geldropus \n");
+        System.out.println("Before update: " + a1.toString() + "\n");
+        a1.setWoonplaats("Geldropus \n");
+        rdao.getAdao().update(a1);
+        System.out.println("After update:" + rdao.getAdao().findById(a1.getAdres_id()).toString() + "\n");
+
+//      Test Delete
+        rdao.getAdao().delete(a1);
+        rdao.delete(aika);
+
+//      Current state van tabel
+        adressen = rdao.getAdao().findAll();
+        System.out.println("[Testing findAll()] Gives following adresses: \n");
+        for (Adres r : adressen) {
+            System.out.println(r);
+        }
 
         System.out.println("\n---------- Test Complete--------------");
     }

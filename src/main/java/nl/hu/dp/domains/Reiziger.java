@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Reiziger {
-    private int id = 0;
+    private int id;
     private String voorletters ="";
     private String tussenvoegsel = "";
     private String achternaam = "";

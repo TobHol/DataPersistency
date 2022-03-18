@@ -31,7 +31,7 @@ public class AdresDAOsql implements AdresDAO{
     public boolean save(Adres inAdres) throws SQLException{
         try{
             PreparedStatement statement = this.conn.prepareStatement(
-                    "INSERT INTO reiziger (adres_id, postcode, huisnummer, straat, woonplaats, reiziger_id) VALUES (?,?,?,?,?,?)"
+                    "INSERT INTO adres (adres_id, postcode, huisnummer, straat, woonplaats, reiziger_id) VALUES (?,?,?,?,?,?)"
             );
             statement.setInt(1, inAdres.getAdres_id());
             statement.setString(2, inAdres.getPostcode());
