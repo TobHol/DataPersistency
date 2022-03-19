@@ -1,6 +1,7 @@
 package nl.hu.dp.dao;
 
 import nl.hu.dp.dao.ReizigerDAO;
+import nl.hu.dp.domains.OVChipkaart;
 import nl.hu.dp.domains.Reiziger;
 
 import java.sql.*;
@@ -10,6 +11,15 @@ import java.util.List;
 public class ReizigerDAOPsql implements ReizigerDAO {
     Connection inConnection = null;
     private AdresDAO adao;
+    private OVChipkaartDAO odao;
+
+    public OVChipkaartDAO getOdao(){
+        return odao;
+    }
+
+    public void setOdao(OVChipkaartDAO odao){
+        this.odao = odao;
+    }
 
     public AdresDAO getAdao() {
         return adao;
@@ -39,6 +49,13 @@ public class ReizigerDAOPsql implements ReizigerDAO {
 
             if (adao != null && inReiziger.getAdres() != null) {
                 adao.save(inReiziger.getAdres());
+            }
+
+            if (odao != null && inReiziger.getOVChipkaarten() != null){
+                for(OVChipkaart ovChipkaart: inReiziger.getOVChipkaarten()){
+                    ovChipkaart.setReiziger(inReiziger);
+                    odao.save(ovChipkaart);
+                }
             }
 
             statement.close();
@@ -71,6 +88,15 @@ public class ReizigerDAOPsql implements ReizigerDAO {
                     r.setAdres(adao.findByReiziger(r));
                     r.getAdres().setReiziger(r);
                 }
+
+//              Ook hier geven we reiziger mee aan oVChipkaart
+                if (odao != null && odao.findByReiziger(r) != null) {
+                    r.setoVChipkaarten(odao.findByReiziger(r));
+                    for(OVChipkaart ovChipkaart: odao.findByReiziger(r)){
+                        ovChipkaart.setReiziger(r);
+                    }
+                }
+
 
                 reizigers.add(r);
             }
@@ -125,10 +151,11 @@ public class ReizigerDAOPsql implements ReizigerDAO {
     public Reiziger findById(int id) throws SQLException {
         ArrayList<Reiziger> reizigers = new ArrayList<Reiziger>();
         try {
-            PreparedStatement statement = this.inConnection.prepareStatement("SELECT * FROM reiziger;");
+            PreparedStatement statement = this.inConnection.prepareStatement("SELECT * FROM reiziger WHERE reiziger_id = ?;");
+            statement.setInt(1, id);
             ResultSet theSet = statement.executeQuery();
 
-            while (theSet.next()) {
+            if (theSet.next()) {
                 Reiziger r = new Reiziger();
                 r.setId(theSet.getInt("reiziger_id"));
                 r.setVoorletters(theSet.getString("voorletters"));

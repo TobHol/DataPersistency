@@ -16,4 +16,5 @@ public interface ReizigerDAO {
     Reiziger findById(int id) throws SQLException;
 
     AdresDAO getAdao();
+    OVChipkaartDAO getOdao();
 }

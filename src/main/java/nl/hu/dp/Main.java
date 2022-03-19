@@ -1,13 +1,12 @@
 package nl.hu.dp;
 
-import nl.hu.dp.dao.AdresDAO;
-import nl.hu.dp.dao.AdresDAOsql;
-import nl.hu.dp.dao.ReizigerDAO;
-import nl.hu.dp.dao.ReizigerDAOPsql;
+import nl.hu.dp.dao.*;
 import nl.hu.dp.domains.Adres;
+import nl.hu.dp.domains.OVChipkaart;
 import nl.hu.dp.domains.Reiziger;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -18,11 +17,94 @@ public class Main {
 
         ReizigerDAOPsql rdp = new ReizigerDAOPsql(getConnection());
         AdresDAOsql adp = new AdresDAOsql(getConnection());
+        OVChipkaartDAOsql odp = new OVChipkaartDAOsql(getConnection());
+
         rdp.setAdao(adp);
         adp.setRdao(rdp);
 
+        rdp.setOdao(odp);
+
         testReizigerDAO(rdp);
         testAdresDAO(rdp);
+        testOVChipkaartDAO(rdp);
+    }
+
+    private static void testOVChipkaartDAO(ReizigerDAO rdao) throws SQLException{
+        ArrayList<OVChipkaart> ovChipkaartenAika = new ArrayList<OVChipkaart>();
+
+        System.out.println("\n---------- Test OVChipkaartDAOsql -------------");
+        //      Current state van tabel
+        List<OVChipkaart> oVChipkaarten = rdao.getOdao().findAll();
+        System.out.println("[Testing findAll()] Gives following OVChipkaarten: \n");
+        for (OVChipkaart o : oVChipkaarten) {
+            System.out.println(o);
+        }
+        System.out.println();
+
+        // Test save
+        System.out.println("\nTest save");
+        String geldig_tot = "2023-01-01";
+        String gbdatum = "1981-03-14";
+        Reiziger aika = new Reiziger(88, "Aika", "", "Boers", java.sql.Date.valueOf(gbdatum));
+        OVChipkaart ovChipkaart1 = new OVChipkaart(12345, java.sql.Date.valueOf(geldig_tot), 3, 33.2 );
+
+        ovChipkaart1.setReiziger(aika);
+        ovChipkaartenAika.add(ovChipkaart1);
+        aika.setoVChipkaarten(ovChipkaartenAika);
+
+        rdao.save(aika);
+        rdao.getOdao().save(ovChipkaart1);
+
+        System.out.println(aika.toString() + "\n");
+
+
+        // Test findById
+        System.out.println("\nTest FindByID");
+        OVChipkaart ovChipkaart2 = rdao.getOdao().findById(12345);
+        System.out.println(ovChipkaart2.toString());
+
+        // also add this ovchipkaart to aika
+        ovChipkaartenAika.add(ovChipkaart2);
+
+        //      Current state van tabel
+        oVChipkaarten = rdao.getOdao().findAll();
+        System.out.println("\n[Testing findAll()] Gives following OVChipkaarten:");
+        for (OVChipkaart o : oVChipkaarten) {
+            System.out.println(o);
+        }
+        System.out.println();
+
+        // Show all ovchipkaarten owned by aika
+        System.out.println(aika.toString());
+
+        // Test Delete
+        System.out.println("\nTest Delete:");
+        rdao.getOdao().delete(ovChipkaart2);
+        rdao.getOdao().delete(ovChipkaart1);
+        rdao.delete(aika);
+
+        // Show all ovchipkaarten owned by aika
+        System.out.println(rdao.findById(88));
+
+
+        //      Current state van tabel
+        oVChipkaarten = rdao.getOdao().findAll();
+        System.out.println("\n[Testing findAll()] Gives following OVChipkaarten:");
+        for (OVChipkaart o : oVChipkaarten) {
+            System.out.println(o);
+        }
+        System.out.println();
+
+        // Showing all oVChipKaarten from every person:
+        List<Reiziger> reizigers = new ArrayList<>();
+        reizigers = rdao.findAll();
+        for(Reiziger reiziger: reizigers){
+            System.out.println(reiziger.toString());
+        }
+
+
+
+        System.out.println("\n---------- Test complete -------------");
     }
 
     private static void testAdresDAO(ReizigerDAO rdao) throws SQLException{
@@ -38,14 +120,15 @@ public class Main {
 
 //      Test Delete Database
         String gbdatum = "1981-03-14";
-        Reiziger aika = new Reiziger(88, "S", "", "Boers", java.sql.Date.valueOf(gbdatum));
+        Reiziger aika = new Reiziger(22, "S", "", "Boers", java.sql.Date.valueOf(gbdatum));
         rdao.delete(aika);
         Adres a1 = new Adres(3000, "5683fd", "22a", "Roomstraat", "Helmondus");
         rdao.getAdao().delete(a1);
 
-//      Create Relations
+//      Create + show Relations
         a1.setReiziger(aika);
         aika.setAdres(a1);
+        System.out.println("Testing relations" + aika.toString() + "\n");
 
 //      Persist Data
         System.out.println("[Testing insert] \nFirst " + adressen.size() + " adressen \nAfter AdreDAOsql.save() ");
@@ -70,6 +153,7 @@ public class Main {
         for (Adres r : adressen) {
             System.out.println(r);
         }
+
 
         System.out.println("\n---------- Test Complete--------------");
     }

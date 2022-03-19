@@ -13,6 +13,15 @@ public class Reiziger {
     private String achternaam = "";
     private java.sql.Date geboortedatum = new java.sql.Date(0);
     private Adres adres;
+    private ArrayList<OVChipkaart> oVChipkaarten;
+
+    public List<OVChipkaart> getOVChipkaarten(){
+        return this.oVChipkaarten;
+    }
+
+    public void setoVChipkaarten(List<OVChipkaart> oVChipkaarten){
+        this.oVChipkaarten = (ArrayList<OVChipkaart>) oVChipkaarten;
+    }
 
     public Adres getAdres() {
         return adres;
@@ -41,6 +50,11 @@ public class Reiziger {
                  ")";
         if(adres != null){
             s += adres.toString();
+        }
+        if(oVChipkaarten != null){
+            for (OVChipkaart ovChipkaart: oVChipkaarten){
+                s+= "\n\t" + ovChipkaart.toString() ;
+            }
         }
         return s ;
     }
