@@ -24,8 +24,8 @@ public class Main {
 
         rdp.setOdao(odp);
 
-        testReizigerDAO(rdp);
-        testAdresDAO(rdp);
+//        testReizigerDAO(rdp);
+//        testAdresDAO(rdp);
         testOVChipkaartDAO(rdp);
     }
 
@@ -45,7 +45,7 @@ public class Main {
         System.out.println("\nTest save");
         String geldig_tot = "2023-01-01";
         String gbdatum = "1981-03-14";
-        Reiziger aika = new Reiziger(88, "Aika", "", "Boers", java.sql.Date.valueOf(gbdatum));
+        Reiziger aika = new Reiziger(6, "Aika", "", "Boers", java.sql.Date.valueOf(gbdatum));
         OVChipkaart ovChipkaart1 = new OVChipkaart(12345, java.sql.Date.valueOf(geldig_tot), 3, 33.2 );
 
         ovChipkaart1.setReiziger(aika);
@@ -53,7 +53,6 @@ public class Main {
         aika.setoVChipkaarten(ovChipkaartenAika);
 
         rdao.save(aika);
-        rdao.getOdao().save(ovChipkaart1);
 
         System.out.println(aika.toString() + "\n");
 
@@ -64,6 +63,9 @@ public class Main {
         System.out.println(ovChipkaart2.toString());
 
         // also add this ovchipkaart to aika
+        // For some reason by adding an object to this list, object: Aika will add it to her list as well
+        // Even though function aika.setoVChipkaarten isn't being called?
+        // if you remove this the test result will show only 1 ovchipkaart for aika
         ovChipkaartenAika.add(ovChipkaart2);
 
         //      Current state van tabel
@@ -84,7 +86,7 @@ public class Main {
         rdao.delete(aika);
 
         // Show all ovchipkaarten owned by aika
-        System.out.println(rdao.findById(88));
+        System.out.println(rdao.findById(6));
 
 
         //      Current state van tabel
