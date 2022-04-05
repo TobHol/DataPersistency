@@ -3,6 +3,7 @@ package nl.hu.dp;
 import nl.hu.dp.dao.*;
 import nl.hu.dp.domains.Adres;
 import nl.hu.dp.domains.OVChipkaart;
+import nl.hu.dp.domains.Product;
 import nl.hu.dp.domains.Reiziger;
 
 import java.sql.*;
@@ -18,15 +19,71 @@ public class Main {
         ReizigerDAOPsql rdp = new ReizigerDAOPsql(getConnection());
         AdresDAOsql adp = new AdresDAOsql(getConnection());
         OVChipkaartDAOsql odp = new OVChipkaartDAOsql(getConnection());
+        ProductDAOsql pdp = new ProductDAOsql(getConnection());
 
         rdp.setAdao(adp);
         adp.setRdao(rdp);
-
         rdp.setOdao(odp);
+        pdp.setOdoa(odp);
+        odp.setPdao(pdp);
 
-//        testReizigerDAO(rdp);
-//        testAdresDAO(rdp);
+        testReizigerDAO(rdp);
+        testAdresDAO(rdp);
         testOVChipkaartDAO(rdp);
+        testProductDAO(pdp);
+    }
+
+    private static void testProductDAO(ProductDAO pdao)throws SQLException{
+        ArrayList<Product> producten = new ArrayList<Product>();
+        System.out.println("\n---------- Test ProductenDao -------------");
+        //      Current state van tabel
+        producten = (ArrayList)pdao.findAll();
+        System.out.println("[Testing findAll()] Gives following Producten: \n");
+        for (Product p : producten) {
+            System.out.println(p.toString());
+        }
+        System.out.println();
+
+        // Test save + findByID
+        System.out.println("\nTest save");
+        Product p7 = new Product(7, "week kaart", "Volledige week gratis ov", 4.55 );
+        pdao.save(p7);
+        System.out.println(pdao.findById(p7.getProductNummer()).toString());
+
+        //Showing all results again
+        producten = (ArrayList)pdao.findAll();
+        System.out.println("[Testing findAll()] Gives following Producten: \n");
+        for (Product p : producten) {
+            System.out.println(p.toString());
+        }
+        System.out.println();
+
+        // Test findByOVChipkaart + toString OVChipkaart
+        OVChipkaart bestaandeKaart = (new OVChipkaart(35283, java.sql.Date.valueOf("2018-5-31"), 2, 25.50));
+        bestaandeKaart.setProducten(pdao.findByOVChipkaart(bestaandeKaart));
+        System.out.println(bestaandeKaart.toString());
+
+        //Test update
+        System.out.println("\nTest update");
+        p7.addOVChipkaart(bestaandeKaart);
+        pdao.update(p7);
+        System.out.println(p7.toString() + "\n met ovkaarten:");
+        //pak hier p7 uit de database om te laten zien dat hij nu een relatie in de database heeft met de volgende OVCHIPkaarten
+        for (OVChipkaart ovkaart: pdao.findById(p7.getProductNummer()).getOvChipkaarten()){
+            System.out.println("\t" +ovkaart.toString());
+        }
+
+        // test Delete:
+        pdao.delete(p7);
+
+        //Showing all results again
+        producten = (ArrayList)pdao.findAll();
+        System.out.println("\n[Testing findAll()] Gives following Producten: \n");
+        for (Product p : producten) {
+            System.out.println(p.toString());
+        }
+        System.out.println();
+
     }
 
     private static void testOVChipkaartDAO(ReizigerDAO rdao) throws SQLException{
@@ -35,9 +92,10 @@ public class Main {
         System.out.println("\n---------- Test OVChipkaartDAOsql -------------");
         //      Current state van tabel
         List<OVChipkaart> oVChipkaarten = rdao.getOdao().findAll();
+        oVChipkaarten = (ArrayList)oVChipkaarten;
         System.out.println("[Testing findAll()] Gives following OVChipkaarten: \n");
         for (OVChipkaart o : oVChipkaarten) {
-            System.out.println(o);
+            System.out.println(o.toString());
         }
         System.out.println();
 

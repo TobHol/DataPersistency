@@ -4,6 +4,8 @@ package nl.hu.dp.domains;
 import nl.hu.dp.dao.OVChipkaartDAO;
 
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OVChipkaart {
     private int kaart_nummer;
@@ -11,6 +13,7 @@ public class OVChipkaart {
     private int klasse;
     private double saldo;
     private Reiziger reiziger;
+    private ArrayList<Product> producten = new ArrayList<Product>();
 
     public OVChipkaart(){
     }
@@ -62,10 +65,33 @@ public class OVChipkaart {
         this.reiziger = reiziger;
     }
 
+    public void setProducten(List<Product> producten){this.producten = (ArrayList)producten; }
+
+    public List<Product> getProducten(){ return this.producten;}
+
+    public void addProdcut(Product product){ if(!producten.contains(product)){producten.add(product);}}
+
     @Override
     public String toString(){
         String s = "";
-        s = String.format("OVChipkaart: %d, %d, %.2f, %s", this.kaart_nummer, this.klasse, this.saldo, this.geldig_tot);
+        s = String.format("OVChipkaart: %d, %d, %.2f, %s ", this.kaart_nummer, this.klasse, this.saldo, this.geldig_tot);
+        if(producten != null && producten.size() > 0){
+            s+= "Met producten: ";
+            for( Product p: producten){
+                s +=  p.toString();
+            }
+        }
         return s;
+    }
+
+    @Override
+    public boolean equals(Object ovKaart){
+        if(ovKaart != null && ovKaart instanceof OVChipkaart){
+            ovKaart = (OVChipkaart)ovKaart;
+            if(((OVChipkaart) ovKaart).getKaart_nummer() != this.kaart_nummer){
+                return true;
+            }
+        }
+        return false;
     }
 }
